@@ -27,10 +27,12 @@ class FileSystemSkill(Skill):
         app = find_app(ask.execution_data)
 
         if app.__len__() > 0:
+            ask.talkback = f"Opening {ask.execution_data}"
             subprocess.Popen(["/usr/bin/open", "-W", "-n", "-a", app])
         else:
             app = find_app(ask.sub_intent.replace(" ", ""))
             if app.__len__() > 0:
+                ask.talkback = f"Opening {ask.execution_data}"
                 subprocess.Popen(["/usr/bin/open", "-W", "-n", "-a", app])
     
 

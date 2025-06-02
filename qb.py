@@ -1,5 +1,6 @@
 from ask import Ask
 from intents import Intent
+from skills.exitSkill import ExitSkill
 from skills.fileSystemSkill import FileSystemSkill
 from skills.noopSkill import NoopSkill
 
@@ -8,7 +9,7 @@ from skills.noopSkill import NoopSkill
 SKILL_DICT = {
     Intent.UNKNOWN: NoopSkill,
     Intent.NOTHING: NoopSkill,
-    Intent.EXIT: NoopSkill,
+    Intent.EXIT: ExitSkill,
     Intent.FILE_SYSTEM: FileSystemSkill,
 }
     

@@ -7,6 +7,7 @@
 import argparse
 import queue
 import sys
+import pyttsx3
 import sounddevice as sd
 import json
 
@@ -77,31 +78,47 @@ try:
     else:
         dump_fn = None
 
-    with sd.RawInputStream(samplerate=args.samplerate, blocksize = 8000, device=args.device,
-            dtype="int16", channels=1, callback=callback):
-        print("#" * 80)
-        print("Press Ctrl+C to stop the recording")
-        print("#" * 80)
-        
-        stay_active = True
+    stream = sd.RawInputStream(samplerate=args.samplerate, blocksize = 8000, device=args.device,
+            dtype="int16", channels=1, callback=callback)
+    print("#" * 80)
+    print("Press Ctrl+C to stop the recording")
+    print("#" * 80)
+    
+    stay_active = True
 
-        rec = KaldiRecognizer(model, args.samplerate)
-        while stay_active:
-            data = q.get()
-            if rec.AcceptWaveform(data):
-                utt = json.loads(rec.Result())['text']
-                if utt.__len__() > 0:
-                    ask = Ask(utt)
-                    ask.debug_print()
 
-                    if ask.intent == Intent.EXIT:
-                        stay_active = False
-                    
-                    ask.skill.execute_ask(ask)
-            else:
-                if partials: print(rec.PartialResult())
-            if dump_fn is not None:
-                dump_fn.write(data)
+    tts = pyttsx3.init()
+    stream.stop()
+    tts.say("Howdy")
+    tts.runAndWait()
+    stream.start()
+
+    rec = KaldiRecognizer(model, args.samplerate)
+
+    while stay_active:
+        data = q.get()
+    
+        if rec.AcceptWaveform(data):
+            utt = json.loads(rec.Result())['text']
+            if utt.__len__() > 0:
+                ask = Ask(utt)
+                ask.debug_print()
+
+                if ask.intent == Intent.EXIT:
+                    stay_active = False
+                
+                ask.skill.execute_ask(ask)
+
+                if ask.talkback.__len__() > 0:
+                    stream.stop()
+                    tts.say(ask.talkback)
+                    tts.runAndWait()
+                    stream.start()
+        else:
+            if partials: print(rec.PartialResult())
+        if dump_fn is not None:
+            dump_fn.write(data)
+    stream.close()
 
 except KeyboardInterrupt:
     print("\nDone")

@@ -2,7 +2,7 @@
 from ask import Ask
 from skills.skill import Skill
 
-class NoopSkill(Skill):
+class ExitSkill(Skill):
     def find_sub_intent(self, ask: Ask):
         return ""
 
@@ -10,5 +10,5 @@ class NoopSkill(Skill):
         return ""
     
     def execute_ask(self, ask: Ask):
-        ask.talkback = "I can't do that, beep boop."
+        ask.talkback = "Goodbye"
         print("\n")
