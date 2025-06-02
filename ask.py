@@ -8,5 +8,5 @@ class Ask:
         self.talkback: str = ""
 
     def debug_print(self):
-        print(f"utterance: '{self.utt}'\nintent: {self.intent}\nsub-intent: {self.sub_intent}\n\n")
+        print(f"utterance: '{self.utt}'\nintent: {self.intent}\nsub-intent: {self.sub_intent}\n")
 
