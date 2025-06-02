@@ -3,6 +3,7 @@ from intents import Intent
 from skills.exitSkill import ExitSkill
 from skills.fileSystemSkill import FileSystemSkill
 from skills.noopSkill import NoopSkill
+from skills.randomSkill import RandomSkill
 
 
 
@@ -11,6 +12,7 @@ SKILL_DICT = {
     Intent.NOTHING: NoopSkill,
     Intent.EXIT: ExitSkill,
     Intent.FILE_SYSTEM: FileSystemSkill,
+    Intent.RANDOM: RandomSkill,
 }
     
 def find_intent(ask: Ask):
@@ -22,7 +24,9 @@ def find_intent(ask: Ask):
         intent = Intent.FILE_SYSTEM
     if words[0] == 'exit' or words[0] == 'cancel':
         intent = Intent.EXIT
-    
+    if ask.utt == 'flip a coin' or ask.utt.startswith('roll a d') or ask.utt.startswith('roll the d'):
+        intent = Intent.RANDOM
+
     ask.skill = SKILL_DICT[intent]()
 
     return intent

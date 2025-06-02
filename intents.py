@@ -6,3 +6,4 @@ class Intent(Enum):
     NOTHING = 1
     EXIT = 2
     FILE_SYSTEM = 3
+    RANDOM = 4

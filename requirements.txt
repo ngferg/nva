@@ -164,6 +164,7 @@ pyttsx3==2.98
 requests==2.32.3
 sounddevice==0.5.2
 srt==3.5.3
+text2num==3.0.0
 tqdm==4.67.1
 urllib3==2.4.0
 vosk==0.3.44
