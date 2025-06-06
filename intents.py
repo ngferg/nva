@@ -7,3 +7,4 @@ class Intent(Enum):
     EXIT = 2
     FILE_SYSTEM = 3
     RANDOM = 4
+    KNOWLEDGE = 5

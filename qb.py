@@ -1,5 +1,6 @@
 from ask import Ask
 from intents import Intent
+from skills.knowledgeSkill import KnowledgeSkill
 from skills.exitSkill import ExitSkill
 from skills.fileSystemSkill import FileSystemSkill
 from skills.noopSkill import NoopSkill
@@ -13,6 +14,7 @@ SKILL_DICT = {
     Intent.EXIT: ExitSkill,
     Intent.FILE_SYSTEM: FileSystemSkill,
     Intent.RANDOM: RandomSkill,
+    Intent.KNOWLEDGE: KnowledgeSkill,
 }
     
 def find_intent(ask: Ask):
@@ -26,6 +28,8 @@ def find_intent(ask: Ask):
         intent = Intent.EXIT
     if ask.utt == 'flip a coin' or ask.utt.startswith('roll a d') or ask.utt.startswith('roll the d'):
         intent = Intent.RANDOM
+    if words[0] == 'what':
+        intent = Intent.KNOWLEDGE
 
     ask.skill = SKILL_DICT[intent]()
 
