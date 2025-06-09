@@ -25,68 +25,87 @@ def callback(indata, frames, time, status):
     q.put(bytes(indata))
 
 args = parser.get_args()
+typing_mode = args.typing
+tts = pyttsx3.init()
+stay_active = True
 
-try:
-    partials = args.partials
-    if args.samplerate is None:
-        device_info = sd.query_devices(args.device, "input")
-        # soundfile expects an int, sounddevice provides a float:
-        args.samplerate = int(device_info["default_samplerate"])
+if typing_mode:
+    tts.say("Typing mode: ")
+    tts.runAndWait()
+    print("Starting VA in typing mode...")
+
+    while stay_active:
+        utt = input("Type a command: ")
+        ask = Ask(utt.lower())
+        ask.debug_print()
+
+        if ask.intent == Intent.EXIT:
+            stay_active = False
         
-    if args.model is None:
-        model = Model(lang="en-us")
-    else:
-        model = Model(lang=args.model)
+        ask.skill.execute_ask(ask)
 
-    if args.filename:
-        dump_fn = open(args.filename, "wb")
-    else:
-        dump_fn = None
+        if ask.talkback.__len__() > 0:
+            tts.say(ask.talkback)
+            tts.runAndWait()
+else:
+    try:
+        partials = args.partials
+        if args.samplerate is None:
+            device_info = sd.query_devices(args.device, "input")
+            # soundfile expects an int, sounddevice provides a float:
+            args.samplerate = int(device_info["default_samplerate"])
+            
+        if args.model is None:
+            model = Model(lang="en-us")
+        else:
+            model = Model(lang=args.model)
 
-    with sd.RawInputStream(samplerate=args.samplerate, blocksize = 8000, device=args.device,
-            dtype="int16", channels=1, callback=callback) as stream:
-        print("#" * 80)
-        print("Press Ctrl+C to stop the recording")
-        print("#" * 80)
-        
-        stay_active = True
+        if args.filename:
+            dump_fn = open(args.filename, "wb")
+        else:
+            dump_fn = None
 
+        with sd.RawInputStream(samplerate=args.samplerate, blocksize = 8000, device=args.device,
+                dtype="int16", channels=1, callback=callback) as stream:
+            print("#" * 80)
+            print("Press Ctrl+C to stop the recording")
+            print("#" * 80)
+            
 
-        tts = pyttsx3.init()
-        stream.stop()
-        tts.say("Howdy")
-        tts.runAndWait()
-        stream.start()
+            stream.stop()
+            tts.say("Howdy")
+            tts.runAndWait()
+            stream.start()
 
-        rec = KaldiRecognizer(model, args.samplerate)
+            rec = KaldiRecognizer(model, args.samplerate)
 
-        while stay_active:
-            data = q.get()
-        
-            if rec.AcceptWaveform(data):
-                utt = json.loads(rec.Result())['text']
-                if utt.__len__() > 0:
-                    print(utt)
-                    ask = Ask(utt)
-                    ask.debug_print()
+            while stay_active:
+                data = q.get()
+            
+                if rec.AcceptWaveform(data):
+                    utt = json.loads(rec.Result())['text']
+                    if utt.__len__() > 0:
+                        print(utt)
+                        ask = Ask(utt)
+                        ask.debug_print()
 
-                    if ask.intent == Intent.EXIT:
-                        stay_active = False
-                    
-                    ask.skill.execute_ask(ask)
+                        if ask.intent == Intent.EXIT:
+                            stay_active = False
+                        
+                        ask.skill.execute_ask(ask)
 
-                    if ask.talkback.__len__() > 0:
-                        stream.stop()
-                        tts.say(ask.talkback)
-                        tts.runAndWait()
-                        stream.start()
-            else:
-                if partials: print(rec.PartialResult())
-            if dump_fn is not None:
-                dump_fn.write(data)
+                        if ask.talkback.__len__() > 0:
+                            stream.stop()
+                            tts.say(ask.talkback)
+                            tts.runAndWait()
+                            stream.start()
+                else:
+                    if partials: print(rec.PartialResult())
+                if dump_fn is not None:
+                    dump_fn.write(data)
 
-except KeyboardInterrupt:
-    print("\nDone")
-    parser.exit(0)
-except Exception as e:
-    parser.exit(type(e).__name__ + ": " + str(e))
+    except KeyboardInterrupt:
+        print("\nDone")
+        parser.exit(0)
+    except Exception as e:
+        parser.exit(type(e).__name__ + ": " + str(e))

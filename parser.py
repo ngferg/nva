@@ -29,6 +29,9 @@ def get_args():
     parser.add_argument(
         "-p", "--partials", type=bool, help="log partial recordings"
     )
+    parser.add_argument(
+        "-t", "--typing", type=bool, help="type instead of speak to the va"
+    )
     return parser.parse_args(remaining)
 
 def int_or_str(text):

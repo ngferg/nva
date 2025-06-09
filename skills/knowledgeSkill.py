@@ -20,13 +20,13 @@ class KnowledgeSkill(Skill):
         return KnowledgeSubIntent.UNKNOWN
 
     def find_execution_data(self, ask: Ask):
-        words = ask.utt.split()
+        words = ask.utt.replace("what", "").replace("is", "").strip().split()
         if words.__contains__('plus'):
             operand_index = words.index('plus')
             if words.__len__() > operand_index + 1:
                 try:
-                    x = text2num(words.__getitem__(operand_index-1), "en")
-                    y = text2num(words.__getitem__(operand_index+1), "en")
+                    x = text2num(' '.join(words[0:operand_index]).strip(), "en")
+                    y = text2num(' '.join(words[operand_index+1:]).strip(), "en")
                     z = x + y
                     return f"{x} plus {y} is {z}"
                 except:
