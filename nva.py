@@ -24,6 +24,10 @@ def callback(indata, frames, time, status):
         print(status, file=sys.stderr)
     q.put(bytes(indata))
 
+def clean_utt(utt: str) -> str:
+    utt = utt.replace("what's", "what is");
+    return utt;
+
 args = parser.get_args()
 typing_mode = args.typing
 tts = pyttsx3.init()
@@ -36,6 +40,7 @@ if typing_mode:
 
     while stay_active:
         utt = input("Type a command: ")
+        utt = clean_utt(utt)
         ask = Ask(utt.lower())
         ask.debug_print()
 
