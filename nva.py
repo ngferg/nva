@@ -89,6 +89,7 @@ else:
             
                 if rec.AcceptWaveform(data):
                     utt = json.loads(rec.Result())['text']
+                    utt = clean_utt(utt)
                     if utt.__len__() > 0:
                         print(utt)
                         ask = Ask(utt)
