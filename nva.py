@@ -18,15 +18,18 @@ import parser
 
 q = queue.Queue()
 
+
 def callback(indata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
     if status:
         print(status, file=sys.stderr)
     q.put(bytes(indata))
 
+
 def clean_utt(utt: str) -> str:
-    utt = utt.replace("what's", "what is");
-    return utt;
+    utt = utt.replace("what's", "what is")
+    return utt
+
 
 args = parser.get_args()
 typing_mode = args.typing
@@ -46,7 +49,7 @@ if typing_mode:
 
         if ask.intent == Intent.EXIT:
             stay_active = False
-        
+
         ask.skill.execute_ask(ask)
 
         if ask.talkback.__len__() > 0:
@@ -59,7 +62,7 @@ else:
             device_info = sd.query_devices(args.device, "input")
             # soundfile expects an int, sounddevice provides a float:
             args.samplerate = int(device_info["default_samplerate"])
-            
+
         if args.model is None:
             model = Model(lang="en-us")
         else:
@@ -70,12 +73,12 @@ else:
         else:
             dump_fn = None
 
-        with sd.RawInputStream(samplerate=args.samplerate, blocksize = 8000, device=args.device,
-                dtype="int16", channels=1, callback=callback) as stream:
+        with sd.RawInputStream(samplerate=args.samplerate, blocksize=8000,
+                               device=args.device, dtype="int16", channels=1,
+                               callback=callback) as stream:
             print("#" * 80)
             print("Press Ctrl+C to stop the recording")
             print("#" * 80)
-            
 
             stream.stop()
             tts.say("Howdy")
@@ -86,7 +89,7 @@ else:
 
             while stay_active:
                 data = q.get()
-            
+
                 if rec.AcceptWaveform(data):
                     utt = json.loads(rec.Result())['text']
                     utt = clean_utt(utt)
@@ -97,7 +100,7 @@ else:
 
                         if ask.intent == Intent.EXIT:
                             stay_active = False
-                        
+
                         ask.skill.execute_ask(ask)
 
                         if ask.talkback.__len__() > 0:
@@ -106,7 +109,8 @@ else:
                             tts.runAndWait()
                             stream.start()
                 else:
-                    if partials: print(rec.PartialResult())
+                    if partials:
+                        print(rec.PartialResult())
                 if dump_fn is not None:
                     dump_fn.write(data)
 

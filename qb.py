@@ -7,7 +7,6 @@ from skills.noopSkill import NoopSkill
 from skills.randomSkill import RandomSkill
 
 
-
 SKILL_DICT = {
     Intent.UNKNOWN: NoopSkill,
     Intent.NOTHING: NoopSkill,
@@ -16,7 +15,8 @@ SKILL_DICT = {
     Intent.RANDOM: RandomSkill,
     Intent.KNOWLEDGE: KnowledgeSkill,
 }
-    
+
+
 def find_intent(ask: Ask):
     words = ask.utt.split()
     intent = Intent.UNKNOWN
@@ -34,4 +34,3 @@ def find_intent(ask: Ask):
     ask.skill = SKILL_DICT[intent]()
 
     return intent
-
