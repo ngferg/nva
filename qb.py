@@ -28,7 +28,7 @@ def find_intent(ask: Ask):
         intent = Intent.EXIT
     if ask.utt == 'flip a coin' or ask.utt.startswith('roll a d') or ask.utt.startswith('roll the d'):
         intent = Intent.RANDOM
-    if words[0] == 'what':
+    if words[0] == 'what' or words[0] == 'how' or words[0] == 'why' or words[0] == 'who' or words[0] == 'where' or words[0] == 'when':
         intent = Intent.KNOWLEDGE
 
     ask.skill = SKILL_DICT[intent]()

@@ -1,4 +1,5 @@
-
+import requests
+import json
 from enum import Enum
 from ask import Ask
 from skills.skill import Skill
@@ -7,6 +8,7 @@ from text_to_num import text2num
 class KnowledgeSubIntent(Enum):
     UNKNOWN = 0
     ARITHMETIC = 1
+    LLAMA = 2
 
 class KnowledgeErrors(Enum):
     NOT_IMPLEMENTED = 0
@@ -17,7 +19,7 @@ class KnowledgeSkill(Skill):
         words = ask.utt.split()
         if words.__contains__('plus'):
             return KnowledgeSubIntent.ARITHMETIC
-        return KnowledgeSubIntent.UNKNOWN
+        return KnowledgeSubIntent.LLAMA
 
     def find_execution_data(self, ask: Ask):
         words = ask.utt.replace("what", "").replace("is", "").strip().split()
@@ -34,7 +36,7 @@ class KnowledgeSkill(Skill):
             else:
                 return KnowledgeErrors.MATH_FORMAT_ERROR
                 
-        return KnowledgeErrors.NOT_IMPLEMENTED
+        return ask.utt + ". Note: this will be read by a voice assistant, be concise"
     
     def execute_ask(self, ask: Ask):
         if ask.execution_data == KnowledgeErrors.NOT_IMPLEMENTED:
@@ -43,6 +45,17 @@ class KnowledgeSkill(Skill):
         if ask.execution_data == KnowledgeErrors.MATH_FORMAT_ERROR:
             ask.talkback = "Math not formatted properly, please try again."
             return
+        if ask.sub_intent == KnowledgeSubIntent.LLAMA:
+            payload = {
+                    "model": "llama3.2",
+                    "prompt": ask.execution_data
+            }
+            response = requests.post("http://localhost:11434/api/generate", json=payload)
+            lines = response.text.splitlines()
+            ask.execution_data = ""
+            for line in lines:
+                word = json.loads(line)['response']
+                ask.execution_data += word 
         
         ask.talkback = ask.execution_data
         print("\n")
